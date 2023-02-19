@@ -1,0 +1,13 @@
+Standard form
+clc
+clear all
+
+A=[1,-2,-3;2,3,-4;1,1,1];
+B=[4;5;2];
+C=[1,2,-3];
+
+ineq = [0 1 1]            %% <= : 0 and >= : 1
+s=eye(size(A,1))          %% identity matrix 
+index = find(ineq>0)      %% find position where inequality>0
+s(index,:)= -s(index,:)   %% updating values which we found in index
+matrix = [A s B]

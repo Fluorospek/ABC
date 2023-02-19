@@ -1,0 +1,77 @@
+Graphical Method
+clc
+clear all
+
+%% phase 1: define variable
+c=[2 3];
+a=[-1 3;1 1 ;1 -1]
+b=[10;6;2]
+syms x1;
+syms x2;
+f=@(x1,x2)(2*x1+3*x2)
+x1=0:max(b)
+x21=(b(1)-a(1,1)*x1)/a(1,2)
+x22=(b(2)-a(2,1)*x1)/a(2,2)
+x23=(b(3)-a(3,1)*x1)/a(3,2)
+x21=max(0,x21)
+x22=max(0,x22)
+x23=max(0,x23)
+
+%% phase 2 : plot graph
+xlabel('x1')
+ylabel('x2')
+grid on
+hold on
+plot(x1,x21,'r','linewidth',2)
+plot(x1,x22,'g','linewidth',2)
+plot(x1,x23,'b','linewidth',2)
+legend('l1','l2','l3')
+
+%% phase 3 : corner points
+c1=find(x1==0)
+cx1=find(x21==0)
+line1=[x1([c1 cx1]);x21([c1 cx1])]'
+cx2=find(x22==0)
+line2=[x1([c1 cx2]);x22([c1 cx2])]'
+cx3=find(x23==0)
+line3=[x1([c1 cx3]);x23([c1 cx3])]'
+corner_points=unique([line1;line2;line3],'rows')
+
+%% phase 4 : point of intersection of lines
+
+point=[0;0];
+for i=1:size(a,1)
+    a1=a(i,:)
+    b1=b(i,:)
+    for j=i+1:size(a,1)
+        a2=a(j,:)
+        b2=b(j,:)
+        a4=[a1;a2];
+        b4=[b1;b2];
+        x=a4\b4;           %% ideally it should be inverse_a*b but as a is not square matrix we use \ backslash
+        point=[point x]    %% updating value of point
+    end
+end
+all_int_points=point'  %% to list all intersection points together 
+
+%% phase 5 : combining all points(inter+corner) 
+
+points_All=[all_int_points;corner_points];
+all_Points=unique(points_All,'rows')
+
+for i=1:size(all_Points,1)
+    cons1(i)=a(1,1)*all_Points(i,1)+a(1,2)*all_Points(i,2)-b(1);
+    cons2(i)=a(2,1)*all_Points(i,1)+a(2,2)*all_Points(i,2)-b(2);
+    cons3(i)=a(3,1)*all_Points(i,1)+a(3,2)*all_Points(i,2)-b(3);
+    s1=find(cons1>0)
+    s2=find(cons2>0)
+    s3=find(cons3>0)
+end
+s=unique([s1 s2 s3])
+all_Points(s,:)=[]
+value=all_Points*c'
+table=[all_Points value]
+[obj,index]=max(value)
+x1=all_Points(index,1);
+x2=all_Points(index,2);
+fprintf('value is %f at (%f,%f)',obj,x1,x2)
